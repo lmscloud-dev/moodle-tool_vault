@@ -218,6 +218,7 @@ class api {
             'CURLOPT_RETURNTRANSFER' => true,
             'CURLOPT_TIMEOUT' => constants::REQUEST_API_TIMEOUT,
             'CURLOPT_MAXREDIRS' => 3,
+            'CURLOPT_SSL_VERIFYPEER' => true,
         ];
 
         $url = self::get_api_url() . '/' . ltrim($endpoint, '/');
