@@ -2,6 +2,14 @@
 
 All notable changes to the tool_vault plugin will be documented in this file.
 
+## [Unreleased]
+### Added
+- Support for Moodle 5.3.
+### Fixed
+- Minor security findings from the MDL Shield review:
+  - SSL certificates are now verified in requests to the Vault API and cloud storage.
+  - Plugin names, logs, error messages and table names are now escaped in the output.
+
 ## [4.5.2] - 2026-07-26
 ### Fixed
 - Restore no longer fails when the backed up site had numeric columns with an empty string as the default value (a legacy trait of very old databases).

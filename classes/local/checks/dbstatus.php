@@ -236,7 +236,7 @@ class dbstatus extends check_base {
      */
     protected function add_to_excluded_tables_link(string $tablename, ?dbtable $deftable = null): string {
         global $CFG;
-        $a = $CFG->prefix . $tablename;
+        $a = s($CFG->prefix . $tablename);
         if (siteinfo::is_table_excluded_from_backup($tablename, $deftable)) {
             // Looks like we already excluded it since the last check.
             return ' <b><em>' . get_string('tablealreadyexcluded', 'tool_vault', $a) . '</em></b>';
@@ -285,7 +285,7 @@ class dbstatus extends check_base {
                     }
                 } else if ($errortype === constants::DIFF_INVALIDTABLES) {
                     foreach ($details[2] as $l) {
-                        $tables[$tablename]['tablewarnings'][] = $OUTPUT->pix_icon('req', '') . $l .
+                        $tables[$tablename]['tablewarnings'][] = $OUTPUT->pix_icon('req', '') . s($l) .
                             $this->add_to_excluded_tables_link($tablename);
                     }
                 }
