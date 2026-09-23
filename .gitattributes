@@ -5,3 +5,4 @@ amd/build/** -diff
 .gitignore export-ignore
 .camp export-ignore
 node_modules export-ignore
+.claude export-ignore
