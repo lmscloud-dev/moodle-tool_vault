@@ -85,15 +85,17 @@ class tempfiles {
     /**
      * Remove directory recursively
      *
+     * Symbolic links are removed but never followed, files and directories that they point to are not affected.
+     *
      * @param string $dir
      * @return int count of removed files
      */
     public static function remove_temp_dir(string $dir): int {
         unset(self::$createddirs[$dir]);
-        if (!file_exists($dir)) {
+        if (!file_exists($dir) && !is_link($dir)) {
             return 0;
         }
-        if (!is_dir($dir)) {
+        if (is_link($dir) || !is_dir($dir)) {
             return (int)unlink($dir);
         }
         $cnt = 0;
@@ -104,10 +106,11 @@ class tempfiles {
                 \RecursiveIteratorIterator::CHILD_FIRST
             );
             foreach ($files as $file) {
-                if ($file->isDir()) {
-                    rmdir($file->getRealPath());
+                // Do not use getRealPath() here, it resolves symlinks and we would delete their targets.
+                if ($file->isDir() && !$file->isLink()) {
+                    rmdir($file->getPathname());
                 } else {
-                    $cnt += (int)unlink($file->getRealPath());
+                    $cnt += (int)unlink($file->getPathname());
                 }
             }
             rmdir($dir);

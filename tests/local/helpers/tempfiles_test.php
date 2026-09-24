@@ -36,6 +36,42 @@ final class tempfiles_test extends \advanced_testcase {
         $this->assertFalse(file_exists($dir));
     }
 
+    public function test_remove_temp_dir_with_symlinks(): void {
+        if (!function_exists('symlink') || DIRECTORY_SEPARATOR !== '/') {
+            $this->markTestSkipped('Symbolic links are not supported');
+        }
+
+        // Files and directories outside of the directory that is being removed.
+        $targetdir = tempfiles::make_temp_dir('test-target-');
+        file_put_contents($targetdir . '/target.txt', 'target');
+        mkdir($targetdir . '/subdir');
+        file_put_contents($targetdir . '/subdir/file.txt', 'target');
+
+        // Directory with regular files and with symlinks to the files and directories above.
+        $dir = tempfiles::make_temp_dir('test-');
+        mkdir($dir . '/sub');
+        file_put_contents($dir . '/sub/f1.txt', 'hi');
+        symlink($targetdir . '/target.txt', $dir . '/sub/linktofile.txt');
+        symlink($targetdir . '/subdir', $dir . '/sub/linktodir');
+        symlink($targetdir . '/nonexisting', $dir . '/brokenlink');
+
+        $this->assertEquals(4, tempfiles::remove_temp_dir($dir));
+        $this->assertFalse(file_exists($dir) || is_link($dir));
+
+        // A symlink to a directory is removed without touching the target.
+        $link = make_request_directory() . '/link';
+        symlink($targetdir, $link);
+        $this->assertEquals(1, tempfiles::remove_temp_dir($link));
+        $this->assertFalse(file_exists($link) || is_link($link));
+
+        // All targets are still there.
+        $this->assertEquals('target', file_get_contents($targetdir . '/target.txt'));
+        $this->assertEquals('target', file_get_contents($targetdir . '/subdir/file.txt'));
+
+        tempfiles::remove_temp_dir($targetdir);
+        $this->assertFalse(file_exists($targetdir));
+    }
+
     public function test_get_free_space_fallback(): void {
         $dir = make_backup_temp_directory('mytest');
         $space = disk_free_space($dir);

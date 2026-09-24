@@ -6,6 +6,8 @@ All notable changes to the tool_vault plugin will be documented in this file.
 ### Added
 - Support for Moodle 5.3.
 ### Fixed
+- Restore no longer deletes files and directories outside of the dataroot that were symlinked into it,
+  only the symbolic links themselves are removed.
 - Minor security findings from the MDL Shield review:
   - SSL certificates are now verified in requests to the Vault API and cloud storage.
   - Plugin names, logs, error messages and table names are now escaped in the output.
