@@ -10,7 +10,8 @@ All notable changes to the tool_vault plugin will be documented in this file.
   only the symbolic links themselves are removed.
 - Minor security findings from the MDL Shield review:
   - SSL certificates are now verified in requests to the Vault API and cloud storage.
-  - Plugin names, logs, error messages and table names are now escaped in the output.
+  - Plugin names, Moodle versions and backup keys, logs, error messages and table names
+    are now escaped in the output, including the restore pre-check results.
 
 ## [4.5.2] - 2026-07-26
 ### Fixed

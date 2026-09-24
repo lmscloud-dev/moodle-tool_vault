@@ -177,4 +177,23 @@ final class plugins_restore_test extends \advanced_testcase {
             $this->call_protected($check, 'problem_plugins')
         );
     }
+
+    /**
+     * Plugin names from the backup are escaped in the summary.
+     */
+    public function test_summary_escapes_plugin_names(): void {
+        $this->resetAfterTest();
+
+        $backupplugins = siteinfo::get_plugins_list_full(true);
+        unset($backupplugins['tool_vault']);
+        $backupplugins['local_x<img src=x onerror=alert(1)>'] = ['version' => 2026010100, 'isaddon' => true];
+
+        $dryrun = $this->create_dryrun($backupplugins);
+        $check = plugins_restore::create_and_run($dryrun);
+        $this->assertEquals(constants::STATUS_FINISHED, $check->get_model()->status);
+
+        $summary = $check->summary();
+        $this->assertStringContainsString('local_x&lt;img src=x onerror=alert(1)&gt;', $summary);
+        $this->assertStringNotContainsString('<img src=x', $summary);
+    }
 }
