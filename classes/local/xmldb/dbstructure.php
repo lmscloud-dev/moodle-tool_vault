@@ -178,7 +178,11 @@ class dbstructure {
                 $this->backuptables[$name] = new dbtable($table, trim($xmltable['@']['COMPONENT'] ?? ''));
             }
         }
-        set_config('xmldbdisablecommentchecking', $oldxmldb);
+        if ($oldxmldb === null) {
+            unset($CFG->xmldbdisablecommentchecking);
+        } else {
+            $CFG->xmldbdisablecommentchecking = $oldxmldb;
+        }
         // TODO try to match indexes/keys with the actual tables.
     }
 

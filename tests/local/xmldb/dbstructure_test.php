@@ -98,6 +98,48 @@ EOF;
     }
 
     /**
+     * Loading the backup xml temporarily changes $CFG->xmldbdisablecommentchecking and restores it without saving to the DB
+     *
+     * @covers \tool_vault\local\xmldb\dbstructure::load_definitions_from_backup_xml
+     */
+    public function test_backup_xml_restores_cfg(): void {
+        global $CFG, $DB;
+        $this->resetAfterTest();
+
+        $xml = <<<EOF
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="xmldb.xsd">
+  <TABLES>
+    <TABLE NAME="tool_vault_unittest" COMPONENT="core">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
+EOF;
+        $tmpfile = make_request_directory() . '/structure.xml';
+        file_put_contents($tmpfile, $xml);
+        $rm = new \ReflectionMethod(dbstructure::class, 'load_definitions_from_backup_xml');
+        $rm->setAccessible(true);
+
+        // Value is set in config.php (not in the database).
+        $CFG->xmldbdisablecommentchecking = 0;
+        $rm->invoke(new dbstructure(), $tmpfile);
+        $this->assertSame(0, $CFG->xmldbdisablecommentchecking);
+        $this->assertFalse($DB->record_exists('config', ['name' => 'xmldbdisablecommentchecking']));
+
+        // Value is not set.
+        unset($CFG->xmldbdisablecommentchecking);
+        $rm->invoke(new dbstructure(), $tmpfile);
+        $this->assertFalse(isset($CFG->xmldbdisablecommentchecking));
+        $this->assertFalse($DB->record_exists('config', ['name' => 'xmldbdisablecommentchecking']));
+    }
+
+    /**
      * Test function retrieve_sequences()
      */
     public function test_sequences(): void {

@@ -77,14 +77,15 @@ class configoverride extends check_base {
             if (array_key_exists($key, $defaults) && $defaults[$key] === $value) {
                 continue;
             }
+            // Values of the settings that are not included in the backup are not stored, they may contain secrets.
             if (in_array($key, $this->usuallyincluded)) {
                 $included[$key] = $value;
             } else if (in_array($key, $this->usuallyexcluded)) {
-                $notincluded[$key] = $value;
+                $notincluded[$key] = null;
             } else if ($this->setting_in_admin_tree($key)) {
                 $included[$key] = $value;
             } else {
-                $notincluded[$key] = $value;
+                $notincluded[$key] = null;
             }
         }
         return [$included, $notincluded];
@@ -121,8 +122,9 @@ class configoverride extends check_base {
                     $included += [$plugin => []];
                     $included[$plugin][$key] = $value;
                 } else {
+                    // Values of the settings that are not included in the backup are not stored.
                     $notincluded += [$plugin => []];
-                    $notincluded[$plugin][$key] = $value;
+                    $notincluded[$plugin][$key] = null;
                 }
             }
         }
