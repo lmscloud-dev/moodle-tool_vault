@@ -143,6 +143,68 @@ final class site_backup_test extends \advanced_testcase {
         $dbman->drop_table($table);
     }
 
+    public function test_export_table_in_chunks(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $dbman = $DB->get_manager();
+
+        // Table with an 'id' column.
+        $table1 = new \xmldb_table('test_table_withid');
+        $table1->add_field('id', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+        $table1->add_field('name', XMLDB_TYPE_CHAR, 255);
+        $table1->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $dbman->create_temp_table($table1);
+
+        // Table without an 'id' column, the first column has duplicates and nulls.
+        $table2 = new \xmldb_table('test_table_noid');
+        $table2->add_field('name', XMLDB_TYPE_CHAR, 255);
+        $table2->add_field('info', XMLDB_TYPE_CHAR, 255);
+        $dbman->create_temp_table($table2);
+
+        $names = ['a', 'a', 'a', 'b', null];
+        foreach ($names as $i => $name) {
+            $DB->execute("INSERT INTO {test_table_withid} (name) VALUES (?)", [$name]);
+            $DB->execute("INSERT INTO {test_table_noid} (name, info) VALUES (?, ?)", [$name, "r$i"]);
+        }
+
+        $sitebackup = $this->create_site_backup();
+        $sitebackup->chunksize = 2;
+        $dir = tempfiles::make_temp_dir('test-dbstruct-');
+        try {
+            foreach (['test_table_withid', 'test_table_noid'] as $tablename) {
+                $tableobj = dbtable::create_from_actual_db($tablename, $sitebackup->get_db_structure());
+                $sitebackup->export_table_data($tableobj, $dir);
+            }
+
+            // Table with 'id' is exported in chunks of two rows.
+            $ids = [];
+            for ($i = 0; $i < 3; $i++) {
+                $data = json_decode(file_get_contents($dir . "/test_table_withid.$i.json"), true);
+                $this->assertEquals(['id', 'name'], array_shift($data));
+                $this->assertCount($i < 2 ? 2 : 1, $data);
+                $ids = array_merge($ids, array_column($data, 0));
+            }
+            $this->assertFalse(file_exists($dir . '/test_table_withid.3.json'));
+            $this->assertEqualsCanonicalizing($DB->get_fieldset_sql('SELECT id FROM {test_table_withid}'), $ids);
+
+            // Table without 'id' is exported in one file with all rows.
+            $data = json_decode(file_get_contents($dir . '/test_table_noid.0.json'), true);
+            $this->assertEquals(['name', 'info'], array_shift($data));
+            $this->assertEqualsCanonicalizing(['r0', 'r1', 'r2', 'r3', 'r4'], array_column($data, 1));
+            $this->assertFalse(file_exists($dir . '/test_table_noid.1.json'));
+        } finally {
+            // Close archive, remove temp folder and also clear the curl mock stack. Drop temp tables.
+            $sitebackup->get_files_backup(constants::FILENAME_DBDUMP)->finish();
+            tempfiles::remove_temp_dir($dir);
+            $curl = new \curl();
+            $curl->get('');
+            $curl->get('');
+            $curl->get('');
+            $dbman->drop_table($table1);
+            $dbman->drop_table($table2);
+        }
+    }
+
     public function test_export_db(): void {
         if (!PHPUNIT_LONGTEST) {
             $this->markTestSkipped('PHPUNIT_LONGTEST is not defined');
@@ -181,9 +243,22 @@ final class site_backup_test extends \advanced_testcase {
             $this->assertFalse(in_array('tool_vault_operation.0', $files));
             $this->assertFalse(in_array('tool_vault_log.0', $files));
 
-            // Retrieve user file, just for checks.
-            $userlist = json_decode(file_get_contents($dir . '/' . 'user.0.json'), true);
-            $this->assertEquals('admin', $userlist[2][7]);
+            // Large tables are exported in several chunks (the number depends on the table size on disk),
+            // read the rows from all files for the table.
+            $readtable = function (string $tablename) use ($dir, $files): array {
+                $rows = [];
+                foreach ($files as $file) {
+                    if (preg_match('/^' . preg_quote($tablename, '/') . '\\.\\d+$/', $file)) {
+                        $data = json_decode(file_get_contents($dir . '/' . $file . '.json'), true);
+                        $columns = array_shift($data); // Fist row are column names.
+                        $rows = array_merge($rows, array_map(fn($row) => array_combine($columns, $row), $data));
+                    }
+                }
+                return $rows;
+            };
+
+            // Retrieve users, just for checks.
+            $this->assertContains('admin', array_column($readtable('user'), 'username'));
 
             // Retrieve config_plugins, make sure the version number for tool_vault is not included there.
             $config = json_decode(file_get_contents($dir . '/' . 'config_plugins.0.json'), true);
@@ -191,6 +266,7 @@ final class site_backup_test extends \advanced_testcase {
                 ['id', 'plugin', 'name', 'value'],
                 array_shift($config)
             ); // Fist row are column names.
+            $config = array_map('array_values', $readtable('config_plugins'));
             $f1 = array_filter($config, function ($entry) {
                 return $entry[1] === 'tool_vault';
             });

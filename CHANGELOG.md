@@ -8,6 +8,8 @@ All notable changes to the tool_vault plugin will be documented in this file.
 ### Fixed
 - Restore no longer deletes files and directories outside of the dataroot that were symlinked into it,
   only the symbolic links themselves are removed.
+- Large custom database tables without an `id` column (not defined in any install.xml) could be
+  backed up incompletely, now they are always exported in full.
 - Minor security findings from the MDL Shield review:
   - SSL certificates are now verified in requests to the Vault API and cloud storage.
   - Plugin names, Moodle versions and backup keys, logs, error messages and table names
