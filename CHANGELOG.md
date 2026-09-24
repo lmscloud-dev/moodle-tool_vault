@@ -12,6 +12,7 @@ All notable changes to the tool_vault plugin will be documented in this file.
   - SSL certificates are now verified in requests to the Vault API and cloud storage.
   - Plugin names, Moodle versions and backup keys, logs, error messages and table names
     are now escaped in the output, including the restore pre-check results.
+  - Stricter check that the passphrase-derived encryption key is only sent to AWS S3.
 
 ## [4.5.2] - 2026-07-26
 ### Fixed

@@ -485,7 +485,7 @@ class api {
             $s3url = $result['multiplarturl'] ?? null;
 
             // Make sure the returned URL is in fact an AWS S3 pre-signed URL, and we send the encryption key only to AWS.
-            if ($encryptionkey && !preg_match('|^https://[^/]+\\.s3\\.amazonaws\\.com/|', $s3url)) {
+            if ($encryptionkey && !self::is_s3_url($s3url)) {
                 throw new \moodle_exception('error_invaliduploadlink', 'tool_vault', '', $filename);
             }
 
@@ -509,7 +509,7 @@ class api {
         $uploadheaders = array_merge($encryptionheaders, $result['uploadheaders'] ?? []);
         foreach ($s3urls as $partno => $s3url) {
             // Make sure the returned URL is in fact an AWS S3 pre-signed URL, and we send the encryption key only to AWS.
-            if ($encryptionkey && !preg_match('|^https://[^/]+\\.s3\\.amazonaws\\.com/|', $s3url)) {
+            if ($encryptionkey && !self::is_s3_url($s3url)) {
                 throw new \moodle_exception('error_invaliduploadlink', 'tool_vault', '', $filename);
             }
             // Upload the file or a part of the file to the pre-signed URL.
@@ -655,7 +655,7 @@ class api {
         }
 
         // Make sure the returned URL is in fact an AWS S3 pre-signed URL, and we send the encryption key only to AWS.
-        if (!preg_match('|^https://[^/]+\\.s3\\.amazonaws\\.com/|', $s3url)) {
+        if (!self::is_s3_url($s3url)) {
             throw new \moodle_exception('error_notavalidlink', 'tool_vault', '', s($s3url));
         }
 
@@ -700,7 +700,7 @@ class api {
         $encrypted = $result['encrypted'] ?? false;
 
         // Make sure the returned URL is in fact an AWS S3 pre-signed URL, and we send the encryption key only to AWS.
-        if ($encrypted && !preg_match('|^https://[^/]+\\.s3\\.amazonaws\\.com/|', $s3url)) {
+        if ($encrypted && !self::is_s3_url($s3url)) {
             throw new \moodle_exception(
                 'error_invaliddownloadlink',
                 'tool_vault',
@@ -759,6 +759,16 @@ class api {
      */
     public static function prepare_encryption_key(?string $passphrase): string {
         return strlen($passphrase) ? base64_encode(hash('sha256', $passphrase, true)) : '';
+    }
+
+    /**
+     * Checks that the URL is an AWS S3 URL, so that the encryption key is only sent to AWS
+     *
+     * @param string|null $url
+     * @return bool
+     */
+    public static function is_s3_url(?string $url): bool {
+        return (bool)preg_match('|^https://[a-z0-9.-]+\\.s3\\.amazonaws\\.com/|', (string)$url);
     }
 
     /**
