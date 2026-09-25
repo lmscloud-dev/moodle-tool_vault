@@ -160,7 +160,7 @@ class version_restore extends check_base_restore {
             return get_string('moodleversion_fail_cannotupgrade', 'tool_vault', $a);
         } else {
             $a = (object)[
-                'version' => $version,
+                'version' => s($version),
                 'siteversion' => $CFG->version,
             ];
             return get_string('moodleversion_fail', 'tool_vault', $a);

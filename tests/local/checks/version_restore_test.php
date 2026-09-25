@@ -56,4 +56,32 @@ final class version_restore_test extends \advanced_testcase {
         $this->assertStringNotContainsString('<b>version', $summary);
         $this->assertStringNotContainsString('<img src=x', $summary);
     }
+
+    /**
+     * Version from the backup metadata is escaped in the failure message (backup is newer than the site).
+     */
+    public function test_failure_message_escapes_backup_version(): void {
+        $this->resetAfterTest();
+
+        $dryrun = new dryrun_model((object)[
+            'status' => constants::STATUS_INPROGRESS,
+            'backupkey' => 'testbackupkey',
+        ]);
+        $dryrun->save();
+        $dryrun->set_remote_details([
+            'metadata' => [
+                'version' => '9999999999<b>version</b>',
+                'branch' => '999',
+            ],
+        ])->save();
+
+        $check = version_restore::create_and_run($dryrun);
+        $this->assertEquals(constants::STATUS_FINISHED, $check->get_model()->status);
+        $this->assertFalse($check->success());
+
+        $message = $check->get_status_message();
+        $this->assertStringContainsString('9999999999&lt;b&gt;version&lt;/b&gt;', $message);
+        $this->assertStringNotContainsString('<b>version', $message);
+        $this->assertStringNotContainsString('<b>version', $check->summary());
+    }
 }
