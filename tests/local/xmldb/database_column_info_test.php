@@ -42,7 +42,6 @@ final class database_column_info_test extends \advanced_testcase {
 
         $dci = database_column_info::clone_from(new \database_column_info((object)['meta_type' => 'I']));
         $rm = new \ReflectionMethod(database_column_info::class, 'fix_field_properties');
-        $rm->setAccessible(true);
         $rm->invoke($dci, $field, null);
 
         return $field->getDefault();

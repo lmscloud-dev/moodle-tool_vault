@@ -39,7 +39,7 @@
         <td>{{{statusstr}}}
             {{#canresume}}
                 {{#isprogresspage}}
-                    <br><b>This restore can be resumed! Please refer to <a href="{{vaultfaqurl}}" target="_blank">{{vaultfaqurl}}</a></b>
+                    <br><b>{{#str}} restorecanberesumed, tool_vault, {{vaultfaqurl}} {{/str}}</b>
                 {{/isprogresspage}}
                 {{^isprogresspage}}
                 {{#resumerestorebutton}}

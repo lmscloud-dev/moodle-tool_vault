@@ -160,12 +160,10 @@ class upgrade extends restore_action {
 
         $class = new \ReflectionClass(\cache_factory_disabled::class);
         $constructor = $class->getConstructor();
-        $constructor->setAccessible(true);
         $object = $class->newInstanceWithoutConstructor();
         $constructor->invoke($object, 1);
 
         $reflection = new \ReflectionProperty(\cache_factory::class, 'instance');
-        $reflection->setAccessible(true);
         $reflection->setValue(null, $object);
     }
 
@@ -175,7 +173,6 @@ class upgrade extends restore_action {
      */
     protected function enable_caches() {
         $reflection = new \ReflectionProperty(\cache_factory::class, 'instance');
-        $reflection->setAccessible(true);
         $reflection->setValue(null, null);
     }
 }

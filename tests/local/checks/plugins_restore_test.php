@@ -70,7 +70,6 @@ final class plugins_restore_test extends \advanced_testcase {
      */
     protected function call_protected(plugins_restore $check, string $method) {
         $r = new \ReflectionMethod($check, $method);
-        $r->setAccessible(true);
         return $r->invoke($check);
     }
 

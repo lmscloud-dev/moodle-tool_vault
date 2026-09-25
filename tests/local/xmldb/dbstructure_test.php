@@ -78,7 +78,6 @@ EOF;
         // Call the protected backup-xml loader directly (skips the full DB scan done by load_from_backup()).
         $structure = new dbstructure();
         $rm = new \ReflectionMethod(dbstructure::class, 'load_definitions_from_backup_xml');
-        $rm->setAccessible(true);
         $rm->invoke($structure, $tmpfile);
 
         // Mdlcode-disable-next-line cannot-parse-db-tablename.
@@ -124,7 +123,6 @@ EOF;
         $tmpfile = make_request_directory() . '/structure.xml';
         file_put_contents($tmpfile, $xml);
         $rm = new \ReflectionMethod(dbstructure::class, 'load_definitions_from_backup_xml');
-        $rm->setAccessible(true);
 
         // Value is set in config.php (not in the database).
         $CFG->xmldbdisablecommentchecking = 0;

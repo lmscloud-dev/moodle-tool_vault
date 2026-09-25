@@ -125,6 +125,7 @@ $string['error_backupnotavailable'] = 'Backup with the key {$a} is no longer ava
 $string['error_backupnotfinished'] = 'Backup with the key {$a} is not yet completed';
 $string['error_backupprecheckfailed'] = 'Error occurred while executing backup pre-check \'{$a->name}\': {$a->message}';
 $string['error_cannotcreatezip'] = 'Can not create ZIP file';
+$string['error_cannotresumeincompletedb'] = 'Can not resume restore with incomplete database restore stage. Restore can only be resumed if it failed during dataroot or files stages.';
 $string['error_cannotresumerestore'] = 'Can only resume failed restores. Last restore process has status {$a}';
 $string['error_dbstructurenotvalid'] = 'Archive {$a} does not contain database structure';
 $string['error_failedmultipartupload'] = 'Failed to start multipart upload. UploadId not found in the command output: {$a}';
@@ -135,6 +136,7 @@ $string['error_metadatanotvalid'] = 'Archive {$a} does not contain backup metada
 $string['error_notavalidlink'] = 'Vault API did not return a valid link: {$a}';
 $string['error_nothingtorestore'] = 'Nothing to resume';
 $string['error_passphrasewrong'] = 'Error accessing passphrase protected backup. Verify the passphrase and try again.';
+$string['error_restorekeynotfound'] = 'Last restore process does not have restorekey';
 $string['error_restoreprecheckfailed'] = 'Error occurred while executing restore pre-check \'{$a->name}\': {$a->message}';
 $string['error_restoresnotallowed'] = 'Restores are not allowed on this site';
 $string['error_serverreturnednodata'] = 'Server returned no data';
@@ -205,6 +207,7 @@ $string['remotebackups'] = 'Remote backups';
 $string['remotesignin'] = 'Sign in';
 $string['remotesignup'] = 'Create account';
 $string['repeatprecheck'] = 'Repeat pre-check';
+$string['restorecanberesumed'] = 'This restore can be resumed! Please refer to <a href="{$a}" target="_blank">{$a}</a>';
 $string['restoredetails'] = 'Restore details';
 $string['restorefinished'] = 'This restore has already finished. You can access the logs <a href="{$a}">here</a>';
 $string['restorefrombackup'] = 'Restore from backup {$a}';
