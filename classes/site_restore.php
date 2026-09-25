@@ -226,8 +226,7 @@ class site_restore extends operation_base {
      */
     protected function ensure_db_restored() {
         if (!$this->model->is_db_restored()) {
-            throw new \moodle_exception('Can not resume restore with incomplete database restore stage. ' .
-                'Restore can only be resumed if it failed during dataroot or files stages.');
+            throw new \moodle_exception('error_cannotresumeincompletedb', 'tool_vault');
         }
     }
 

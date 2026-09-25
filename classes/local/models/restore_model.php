@@ -84,7 +84,7 @@ class restore_model extends restore_base_model {
             if (!$restorekey) {
                 // This should never happen, if the restorekey is not present, the status would be
                 // failed to start.
-                throw new moodle_exception('Last restore process does not have restorekey');
+                throw new moodle_exception('error_restorekeynotfound', 'tool_vault');
             }
             return $model;
         } else {

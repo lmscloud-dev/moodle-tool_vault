@@ -2,6 +2,23 @@
 
 All notable changes to the tool_vault plugin will be documented in this file.
 
+## [Unreleased]
+### Added
+- Support for Moodle 5.3.
+### Fixed
+- Restore no longer deletes files and directories outside of the dataroot that were symlinked into it,
+  only the symbolic links themselves are removed.
+- Large custom database tables without an `id` column (not defined in any install.xml) could be
+  backed up incompletely, now they are always exported in full.
+- Leading and trailing spaces are now removed from the passphrase in the restore dialogue,
+  the same way as in the backup dialogue.
+- Minor security findings from the MDL Shield review:
+  - SSL certificates are now verified in requests to the Vault API and cloud storage.
+  - Plugin names, Moodle versions and backup keys, logs, error messages and table names
+    are now escaped in the output, including the restore pre-check results.
+  - Stricter check that the passphrase-derived encryption key is only sent to AWS S3.
+  - The pre-check no longer saves values of config.php settings that are not included in the backup.
+
 ## [4.5.2] - 2026-07-26
 ### Fixed
 - Restore no longer fails when the backed up site had numeric columns with an empty string as the default value (a legacy trait of very old databases).

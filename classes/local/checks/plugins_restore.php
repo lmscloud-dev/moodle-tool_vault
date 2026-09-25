@@ -229,20 +229,20 @@ class plugins_restore extends check_base_restore {
                 $paddon[get_string('containsstandardplugins', 'tool_vault', count($p) - count($paddon))] = true;
             }
             $r[] = $this->badge_error() . get_string('addonplugins_withlowerversion', 'tool_vault') . ": " .
-                join(', ', array_keys($paddon));
+                join(', ', array_map('s', array_keys($paddon)));
         }
         if ($p = $this->missing_plugins(false)) {
             $badge = api::get_setting_checkbox('allowrestorewithmissing') ? $this->badge_warning() : $this->badge_error();
             $r[] = $badge . get_string('addonplugins_missing', 'tool_vault') . ": " .
-                join(', ', array_keys($p));
+                join(', ', array_map('s', array_keys($p)));
         }
         if ($p = $this->extra_plugins(false)) {
             $r[] = get_string('addonplugins_notpresent', 'tool_vault') . ": " .
-                join(', ', array_keys($p));
+                join(', ', array_map('s', array_keys($p)));
         }
         if ($p = $this->plugins_needing_upgrade(false)) {
             $r[] = get_string('addonplugins_withhigherversion', 'tool_vault') . ": " .
-                join(', ', array_keys($p));
+                join(', ', array_map('s', array_keys($p)));
         }
         return
             $this->display_status_message($this->get_status_message(), !empty($r)) .

@@ -158,7 +158,6 @@ class dbops {
         // to get the exact length of the query.
         $reflector = new \ReflectionObject($DB);
         $method = $reflector->getMethod('emulate_bound_params');
-        $method->setAccessible(true);
 
         $res = [];
         $valuerowsql = self::prepare_value_sql($noffields, 1);

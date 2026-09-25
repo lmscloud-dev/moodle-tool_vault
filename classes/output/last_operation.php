@@ -64,7 +64,7 @@ class last_operation implements \templatable {
                 $this->text = get_string(
                     'lastop_backupfinished_text',
                     'tool_vault',
-                    (object)['backupkey' => $this->operation->backupkey,
+                    (object)['backupkey' => s($this->operation->backupkey),
                     'started' => ui::format_time($this->operation->timecreated),
                     'finished' => ui::format_time($this->operation->get_finished_time())]
                 );
@@ -91,7 +91,7 @@ class last_operation implements \templatable {
                 $this->text = get_string(
                     'lastop_restorefinished_text',
                     'tool_vault',
-                    (object)['backupkey' => $this->operation->backupkey,
+                    (object)['backupkey' => s($this->operation->backupkey),
                     'started' => ui::format_time($this->operation->timecreated),
                     'finished' => ui::format_time($this->operation->get_finished_time())]
                 );
@@ -119,7 +119,10 @@ class last_operation implements \templatable {
                 $this->text = get_string(
                     'lastop_restoreprecheckfinished_text',
                     'tool_vault',
-                    (object)['finished' => ui::format_time($operation->get_finished_time()), 'backupkey' => $operation->backupkey]
+                    (object)[
+                        'finished' => ui::format_time($operation->get_finished_time()),
+                        'backupkey' => s($operation->backupkey),
+                    ]
                 );
             } else {
                 $this->title = get_string('lastop_restoreprecheckfailed_header', 'tool_vault');

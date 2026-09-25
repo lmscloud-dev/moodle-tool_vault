@@ -35,13 +35,15 @@ class curl extends \curl {
     /**
      * Constructor
      *
-     * When sending presigned requests to the storage provider, do not verify blocked urls/ports
+     * When sending presigned requests to the storage provider, do not verify blocked urls/ports,
+     * but always verify the SSL certificate of the peer
      *
      * @param mixed $settings
      */
     public function __construct($settings = []) {
         $settings['ignoresecurity'] = true;
         parent::__construct($settings);
+        $this->setopt(['CURLOPT_SSL_VERIFYPEER' => true]);
     }
 
     /**

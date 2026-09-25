@@ -89,7 +89,7 @@ class backup_details implements \templatable {
             'encrypted' => $encrypted,
             'encryptedstr' => ui::format_encrypted($encrypted),
             'totalsizestr' => $totalsizestr,
-            'title' => get_string('backuptitle', 'tool_vault', $backupkey),
+            'title' => get_string('backuptitle', 'tool_vault', s($backupkey)),
             'timestarted' => ui::format_time($timestarted),
             'timefinished' => ui::format_time($timefinished),
             'description' => ui::format_description($description),
@@ -150,7 +150,7 @@ class backup_details implements \templatable {
             $startrestorebutton = primary_button::restore_button($backupkey, $encrypted, !$rv['restoreallowed']);
             $rv['startrestorebutton'] = $startrestorebutton->export_for_template($output);
         } else if ($this->fulldetails && !$this->isprogresspage && $this->backup->status === constants::STATUS_FINISHED) {
-            $error = get_string('error_backupnotavailable', 'tool_vault', $backupkey);
+            $error = get_string('error_backupnotavailable', 'tool_vault', s($backupkey));
             // TODO explanation why:
             // - expired
             // - was deleted

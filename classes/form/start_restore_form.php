@@ -119,7 +119,7 @@ class start_restore_form extends dynamic_form {
      */
     public function set_data_for_dynamic_submission(): void {
         $this->set_data([
-            'backupkey' => $this->optional_param('backupkey', '', PARAM_TEXT),
+            'backupkey' => $this->optional_param('backupkey', '', PARAM_ALPHANUMEXT),
             'encrypted' => (int)$this->get_is_encrypted(),
             'dryrun' => (int)$this->is_dry_run(),
             'resume' => (int)$this->is_resume(),
@@ -132,7 +132,7 @@ class start_restore_form extends dynamic_form {
     protected function definition() {
         $mform = $this->_form;
         $mform->addElement('hidden', 'backupkey');
-        $mform->setType('backupkey', PARAM_TEXT);
+        $mform->setType('backupkey', PARAM_ALPHANUMEXT);
         $mform->addElement('hidden', 'encrypted');
         $mform->setType('encrypted', PARAM_INT);
         $mform->addElement('hidden', 'dryrun');
@@ -151,6 +151,7 @@ class start_restore_form extends dynamic_form {
         if ($this->get_is_encrypted()) {
             $mform->addElement('html', \html_writer::tag('p', get_string('enterpassphrase', 'tool_vault')));
             $mform->addElement('text', 'passphrase', get_string('passphrase', 'tool_vault'));
+            $mform->setType('passphrase', PARAM_RAW_TRIMMED);
         }
     }
 

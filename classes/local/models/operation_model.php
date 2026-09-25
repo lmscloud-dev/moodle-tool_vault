@@ -345,7 +345,7 @@ abstract class operation_model {
                 ($log->pid ? "[pid {$log->pid}] " : '') .
                 $log->message;
         }
-        return $usehtml ? \html_writer::span($message, $class) : $message;
+        return $usehtml ? \html_writer::span(s($message), $class) : $message;
     }
 
     /**

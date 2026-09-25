@@ -314,10 +314,14 @@ class site_backup extends operation_base {
         $quotedfields = array_map(function ($f) use ($dbgen) {
             return $dbgen->getEncQuoted($f);
         }, $fields);
-        $sortby = in_array('id', $fields) ? 'id' : reset($quotedfields);
+        $hasid = in_array('id', $fields);
+        $sortby = $hasid ? 'id' : reset($quotedfields);
         $fieldslist = join(',', $quotedfields);
 
-        $chunksize = $this->get_chunk_size($table->get_xmldb_table()->getName());
+        // Large tables are exported in chunks using the value of the last exported 'id' as a cursor.
+        // Tables without 'id' column (not defined in install.xml) are always exported in one go, since other
+        // columns may contain duplicates or nulls and the rows could be skipped.
+        $chunksize = $hasid ? $this->get_chunk_size($table->get_xmldb_table()->getName()) : 0;
         $lastvalue = null;
         for ($cnt = 0; true; $cnt++) {
             [$sql, $params] = plugindata::get_sql_for_plugins_data_in_table(

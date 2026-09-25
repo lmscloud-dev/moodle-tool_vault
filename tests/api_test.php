@@ -46,4 +46,37 @@ final class api_test extends \advanced_testcase {
     public function test_dummy(): void {
         $this->assertNotEmpty(\core_component::get_component_directory('tool_vault'));
     }
+
+    /**
+     * Data provider for test_is_s3_url()
+     *
+     * @return array
+     */
+    public static function is_s3_url_provider(): array {
+        return [
+            ['https://bucket.s3.amazonaws.com/', true],
+            ['https://my-bucket.name.s3.amazonaws.com/path/file.zip?X-Amz-Signature=abc', true],
+            ['https://test.s3.amazonaws.com/', true],
+            ['http://bucket.s3.amazonaws.com/', false],
+            ['https://s3.amazonaws.com/', false],
+            ['https://evil.example?x.s3.amazonaws.com/', false],
+            ['https://evil.example#x.s3.amazonaws.com/', false],
+            ['https://evil.example/x.s3.amazonaws.com/', false],
+            ['https://user@evil.example:x.s3.amazonaws.com/', false],
+            ['https://bucket.s3.amazonaws.com.evil.example/', false],
+            ['', false],
+            [null, false],
+        ];
+    }
+
+    /**
+     * Test for is_s3_url()
+     *
+     * @dataProvider is_s3_url_provider
+     * @param string|null $url
+     * @param bool $expected
+     */
+    public function test_is_s3_url(?string $url, bool $expected): void {
+        $this->assertSame($expected, api::is_s3_url($url));
+    }
 }

@@ -160,7 +160,7 @@ class version_restore extends check_base_restore {
             return get_string('moodleversion_fail_cannotupgrade', 'tool_vault', $a);
         } else {
             $a = (object)[
-                'version' => $version,
+                'version' => s($version),
                 'siteversion' => $CFG->version,
             ];
             return get_string('moodleversion_fail', 'tool_vault', $a);
@@ -184,9 +184,9 @@ class version_restore extends check_base_restore {
             $this->display_status_message($this->get_status_message(), $this->core_needs_upgrade()) .
             '<ul>' .
             '<li>' . get_string('moodleversion_backupinfo', 'tool_vault', (object)[
-                'version' => $details['backupversion'],
-                'branch' => !empty($details['backuprelease']) ? normalize_version($details['backuprelease']) :
-                    $details['backupbranch'],
+                'version' => s($details['backupversion']),
+                'branch' => s(!empty($details['backuprelease']) ? normalize_version($details['backuprelease']) :
+                    $details['backupbranch']),
             ]) . '</li>' .
             '<li>' . get_string('moodleversion_siteinfo', 'tool_vault', (object)[
                 'version' => $CFG->version,

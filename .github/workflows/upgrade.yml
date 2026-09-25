@@ -54,6 +54,9 @@ on:
         required: false
         default: false
 
+permissions:
+  contents: read
+
 # Default PHP versions for each Moodle branch. Update when new versions are released.
 env:
   PHP_VERSION_MAP: >-
@@ -69,13 +72,15 @@ env:
     MOODLE_502_STABLE=8.3
     main=8.3
 
+# TODO add MOODLE_503_STABLE
+
 jobs:
   upgrade_test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:17
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -84,15 +89,14 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
 
       mariadb:
-        image: mariadb:10
+        image: mariadb:11
         env:
-          MYSQL_USER: 'root'
-          MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
           MYSQL_CHARACTER_SET_SERVER: "utf8mb4"
           MYSQL_COLLATION_SERVER: "utf8mb4_unicode_ci"
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval 10s --health-timeout 5s --health-retries 3
 
     steps:
       - name: Resolve PHP versions
@@ -140,10 +144,11 @@ jobs:
         run: git clone --depth=1 --branch=${{ inputs.source_moodle }} https://github.com/moodle/moodle.git source_moodle
 
       - name: Checkout tool_vault (source branch ${{ inputs.source_vault_branch }})
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.source_vault_branch }}
           path: source_vault_tmp
+          persist-credentials: false
 
       - name: Detect source webroot and install plugin
         id: source_detect
@@ -244,9 +249,10 @@ jobs:
         run: git clone --depth=1 --branch=${{ inputs.target_moodle }} https://github.com/moodle/moodle.git target_moodle
 
       - name: Checkout tool_vault (current branch)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: target_vault_tmp
+          persist-credentials: false
 
       - name: Detect target webroot and install plugin
         id: target_detect

@@ -34,6 +34,19 @@ require_once($CFG->dirroot . '/' . $CFG->admin . '/tool/vault/tests/fixtures/fil
  * Mock class for site backup
  */
 class site_backup_mock extends \tool_vault\site_backup {
+    /** @var int|null chunk size to use for the table export instead of the calculated one */
+    public $chunksize = null;
+
+    /**
+     * Helper function, how many rows should we add to one chunk of the db table export
+     *
+     * @param string $tablename
+     * @return int
+     */
+    protected function get_chunk_size(string $tablename) {
+        return $this->chunksize ?? parent::get_chunk_size($tablename);
+    }
+
     /**
      * Get the helper to backup files of the specified type
      *

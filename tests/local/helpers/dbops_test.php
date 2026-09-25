@@ -68,7 +68,6 @@ EOF;
     protected function call_static_method(string $method, array $args = []) {
         $class = new ReflectionClass(dbops::class);
         $method = $class->getMethod($method);
-        $method->setAccessible(true);
         return $method->invokeArgs(null, $args);
     }
 
